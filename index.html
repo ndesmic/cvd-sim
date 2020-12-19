@@ -1,0 +1,356 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>CVD Test</title>
+    <link rel="stylesheet" href="css/index.css">
+    </link>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <link rel="icon" href="img/icon32x32.png" type="image/png" />
+</head>
+
+<body lang="en">
+    <svg height="0" width="0">
+        <defs>
+            <filter id="protanopia-g" color-interpolation-filters="sRGB">
+                <feColorMatrix values="
+        			0.152286 1.052583 -0.204868 0.000 0.000
+        			0.114503 0.786281 0.099216  0.000 0.000
+        			-0.003882 -0.048116	1.051998 0.000 0.000
+        			0.000 0.000 0.000 1.000 0.000" />
+            </filter>
+            <filter id="protanopia" color-interpolation-filters="sRGB">
+                <feColorMatrix values="
+        				0.1120 0.8853 -0.0004 0 0
+        				0.1126 0.8897 -0.0001 0 0
+        				0.0045 0.0000 1.00191 0 0
+        				0 0 0 1 0" />
+            </filter>
+            <filter id="deuteranopia-g" color-interpolation-filters="sRGB">
+                <feColorMatrix values="
+        		 		0.367 0.861 -0.228 0.000 0.000
+        				0.280 0.673 0.047 0.000 0.000
+        				-0.012 0.043 0.969 0.000 0.000
+        				0.000 0.000 0.000 1.000 0.000" />
+            </filter>
+            <filter id="deuteranopia" color-interpolation-filters="sRGB">
+                <feColorMatrix values="
+        		 		0.2920, 0.7054, -0.0003, 0, 0,
+        				0.2934, 0.7089, 0.0000, 0, 0,
+        				-0.02098, 0.02559, 1.0019, 0, 0,
+        				0, 0, 0, 1, 0" />
+            </filter>
+            <filter id="tritanopia-g" color-interpolation-filters="sRGB">
+                <feColorMatrix values="
+        			  1.255528 -0.076749 -0.178779 0.000 0.000
+        			  -0.078411 0.930809 0.147602 0.000 0.000
+        			  0.004733 0.691367 0.303900 0.000 0.000
+        			  0.000 0.000 0.000 1.000 0.000" />
+            </filter>
+            <filter id="tritanopia" color-interpolation-filters="sRGB">
+                <feColorMatrix values="
+        				0.4926, 0.5049, -0.0002, 0, 0
+        				0.4940, 0.5084, 0.0001, 0, 0
+        				-3.0081, 3.0131, 0.9999, 0, 0
+        				0, 0, 0, 1, 0" />
+            </filter>
+            <filter id="tritanopia-fixed" color-interpolation-filters="sRGB">
+                <feColorMatrix values="
+            			1.01595, 0.1351, -0.1488, 0, 0
+            			-0.01542, 0.8683, 0.1448, 0, 0
+            			0.1002, 0.8168, 0.1169, 0, 0
+            			0, 0, 0, 1, 0" />
+            </filter>
+            <filter id="achromatopsia" color-interpolation-filters="sRGB">
+                <feColorMatrix values="
+            		0.21, 0.72, 0.07, 0, 0
+              		0.21, 0.72, 0.07, 0, 0
+              		0.21, 0.72, 0.07, 0, 0
+              		0, 0, 0, 1, 0" />
+            </filter>
+        </defs>
+    </svg>
+    <table>
+        <thead>
+            <tr>
+                <th>Original</th>
+                <th>Protanopia (GLSL)</th>
+                <th>Deuteranopia (GLSL)</th>
+                <th>Tritanopia (GLSL)</th>
+                <th>Tritanopia (GLSL, fixed)</th>
+                <th>Achromatopsia (GLSL)</th>
+            </tr>
+        </thead>
+        <tr>
+            <td>
+                <img src="img/color-test.svg">
+            </td>
+            <td>
+                <wc-shader-canvas image="/img/color-test.svg" height="200" width="200">
+                    precision highp float;
+                    uniform sampler2D u_image;
+                    varying vec2 vTextureCoordinate;
+                
+                    mat4 protanopia = mat4(
+                        0.1120, 0.8853, -0.0004, 0,
+                        0.1126, 0.8897, -0.0001, 0,
+                        0.0045, 0.0000, 1.00191, 0,
+                        0, 0, 0, 1);
+                
+                    void main() {
+                    vec4 source = texture2D(u_image, vTextureCoordinate);
+                
+                    vec4 target = source * protanopia;
+                
+                    gl_FragColor = target;
+                    }
+                </wc-shader-canvas>
+            </td>
+            <td>
+                <wc-shader-canvas image="/img/color-test.svg" height="200" width="200">
+                    precision mediump float;
+                    uniform sampler2D u_image;
+                    varying vec2 vTextureCoordinate;
+                
+                    mat4 deuteranopia = mat4(
+                        0.2920, 0.7054, -0.0003, 0,
+                        0.2934, 0.7089, 0.0000, 0,
+                        -0.02098, 0.02559, 1.0019, 0,
+                        0, 0, 0, 1);
+                
+                    void main() {
+                    vec4 source = texture2D(u_image, vTextureCoordinate);
+                
+                    vec4 target = source * deuteranopia;
+                
+                    gl_FragColor = target;
+                    }
+                </wc-shader-canvas>
+            </td>
+            <td>
+                <wc-shader-canvas image="/img/color-test.svg" height="200" width="200">
+                    precision mediump float;
+                    uniform sampler2D u_image;
+                    varying vec2 vTextureCoordinate;
+                
+                    mat4 tritanopia = mat4(
+                        0.4926, 0.5049, -0.0002, 0,
+                        0.4940, 0.5084, 0.0001, 0,
+                        -3.0081, 3.0131, 0.9999, 0,
+                        0, 0, 0, 1);
+                
+                    void main() {
+                    vec4 source = texture2D(u_image, vTextureCoordinate);
+                
+                    vec4 target = source * tritanopia;
+                
+                    gl_FragColor = target;
+                    }
+                </wc-shader-canvas>
+            </td>
+            <td>
+                <wc-shader-canvas image="/img/color-test.svg" height="200" width="200">
+                    precision highp float;
+                    uniform sampler2D u_image;
+                    varying vec2 vTextureCoordinate;
+                    
+                    
+                    mat4 tritanopia = mat4(
+                    1.01595, 0.1351, -0.1488, 0,
+                    -0.01542, 0.8683, 0.1448, 0,
+                    0.1002, 0.8168, 0.1169, 0,
+                    0, 0, 0, 1);
+
+                    void main() {
+                        vec4 source = texture2D(u_image, vTextureCoordinate);
+
+                        vec4 target = source * tritanopia;
+                        
+                        gl_FragColor = target;
+                    }
+                </wc-shader-canvas>
+            </td>
+            <td>
+                <wc-shader-canvas image="/img/color-test.svg" height="200" width="200">
+                    precision highp float;
+                    uniform sampler2D u_image;
+                    varying vec2 vTextureCoordinate;
+            
+                    //0.21 R + 0.72 G + 0.07 B.
+            
+                    mat4 achromatopsia = mat4(
+                    0.21, 0.72, 0.07, 0,
+                    0.21, 0.72, 0.07, 0,
+                    0.21, 0.72, 0.07, 0,
+                    0, 0, 0, 1);
+            
+                    void main() {
+                        vec4 source = texture2D(u_image, vTextureCoordinate);
+                
+                        vec4 target = source * achromatopsia;
+                
+                        gl_FragColor = target;
+                    }
+                </wc-shader-canvas>
+            </td>
+        </tr>
+    </table>
+    <table>
+        <thead>
+            <tr>
+                <th>Original</th>
+                <th>Protanopia (SVG)</th>
+                <th>Deuteranopia (SVG)</th>
+                <th>Tritanopia (SVG)</th>
+                <th>Tritanopia (SVG, fixed)</th>
+            </tr>
+        </thead>
+        <tr>
+            <td>
+                <img src="img/color-test.svg">
+            </td>
+            <td>
+                <img src="/img/color-test.svg" style="filter: url(#protanopia);">
+            </td>
+            <td>
+                <img src="/img/color-test.svg" style="filter: url(#deuteranopia);">
+            </td>
+            <td>
+               <img src="/img/color-test.svg" style="filter: url(#tritanopia);">
+            </td>
+            <td>
+                <img src="/img/color-test.svg" style="filter: url(#tritanopia-fixed);">
+            </td>
+            <td>
+                <img src="/img/color-test.svg" style="filter: url(#achromatopsia);">
+            </td>
+        </tr>
+    </table>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Original</th>
+                <th>Protanopia (JS)</th>
+                <th>Deuteranopia (JS)</th>
+                <th>Tritanopia (JS)</th>
+                <th>Tritanopia (JS, fixed)</th>
+            </tr>
+        </thead>
+        <tr>
+            <td>
+                <img src="/img/color-test.svg">
+            </td>
+            <td>
+                <wc-cpu-shader-canvas image="img/color-test.svg" height="200" width="200">
+                    const protanopia = [
+                        [0.1120, 0.8853, -0.0005, 0],
+                        [0.1126, 0.8897, -0.0001, 0],
+                        [0.0045, 0.0001, 1.00191, 0],
+                        [0, 0, 0, 1]
+                    ];
+                    const result = Matrix.crossMultiplyMatrixVector(color, protanopia);
+                    return result;
+                </wc-cpu-shader-canvas>
+            </td>
+            <td>
+                <wc-cpu-shader-canvas image="img/color-test.svg" height="200" width="200">
+                    const deuteranopia = [
+                        [0.2920, 0.7054, -0.0003, 0],
+                        [0.2934, 0.7089, 0.0000, 0],
+                        [-0.02098, 0.02559, 1.0019, 0],
+                        [0, 0, 0, 1]
+                    ];
+                    const result = Matrix.crossMultiplyMatrixVector(color, deuteranopia);
+                    return result;
+                </wc-cpu-shader-canvas>
+            </td>
+            <td>
+                <wc-cpu-shader-canvas image="img/color-test.svg" height="200" width="200">
+                    const tritanopia = [
+                        [0.4926, 0.5049, -0.0002, 0],
+                        [0.4940, 0.5084, 0.0001, 0],
+                        [-3.0081, 3.0131, 0.9999, 0],
+                        [0, 0, 0, 1]
+                    ];
+                    const result = Matrix.crossMultiplyMatrixVector(color, tritanopia);
+                    return result;
+                </wc-cpu-shader-canvas>
+            </td>
+            <td>
+                <wc-cpu-shader-canvas image="img/color-test.svg" height="200" width="200">
+                    const tritanopiaFixed = [
+                        [1.01595, 0.1351, -0.1488, 0],
+                        [-0.01542, 0.8683, 0.1448, 0],
+                        [0.1002, 0.8168, 0.1169, 0],
+                        [0, 0, 0, 1]
+                    ];
+                    const result = Matrix.crossMultiplyMatrixVector(color, tritanopiaFixed);
+                    return result;
+                </wc-cpu-shader-canvas>
+            </td>
+            <td>
+                <wc-cpu-shader-canvas image="img/color-test.svg" height="200" width="200">
+                    const achromatopsia = [
+                        [0.21, 0.72, 0.07, 0],
+                        [0.21, 0.72, 0.07, 0],
+                        [0.21, 0.72, 0.07, 0],
+                        [0, 0, 0, 1],
+                    ];
+                    const result = Matrix.crossMultiplyMatrixVector(color, achromatopsia);
+                    return result;
+                </wc-cpu-shader-canvas>
+            </td>
+        </tr>
+    </table>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Original</th>
+                <th>Protanopia (SVG, Google)</th>
+                <th>Deuteranopia (SVG, Google)</th>
+                <th>Tritanopia (SVG, Google)</th>
+            </tr>
+        </thead>
+        <tr>
+            <td>
+                <img src="img/color-test.svg">
+            </td>
+            <td>
+                <img src="/img/color-test.svg" style="filter: url(#protanopia-g);">
+            </td>
+            <td>
+                <img src="/img/color-test.svg" style="filter: url(#deuteranopia-g);">
+            </td>
+            <td>
+                <img src="/img/color-test.svg" style="filter: url(#tritanopia-g);">
+            </td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <td>
+                <img src="img/ishihara.jpg">
+            </td>
+            <td>
+                <img src="img/ishihara.jpg" style="filter: url(#protanopia);">
+            </td>
+            <td>
+                <img src="img/ishihara.jpg" style="filter: url(#deuteranopia);">
+            </td>
+            <td>
+                <img src="img/ishihara.jpg" style="filter: url(#tritanopia-fixed);">
+            </td>
+            <td>
+                <img src="img/ishihara.jpg" style="filter: url(#achromatopsia);">
+            </td>
+        </tr>
+    </table>
+    <script src="/js/components/shader-canvas.js" type="module"></script>
+    <script src="/js/components/wc-cpu-shader-canvas.js" type="module"></script>
+    <script src="/js/scratch-pad.js" type="module"></script>
+</body>
+
+</html>
