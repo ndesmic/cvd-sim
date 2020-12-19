@@ -1,3 +1,3 @@
-# wc-app-template
+# cvd-sim
 
-My boilerplate for 0 dependency web apps built on top of Web Components.
+A color vision deficiency simulator, with implementations in SVG, JS and GLSL. 

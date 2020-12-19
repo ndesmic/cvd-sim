@@ -1,7 +1,7 @@
 {
-  "name": "basic-wc",
+  "name": "cvd-sim",
   "version": "1.0.0",
-  "description": "My boilerplate for 0 dependency web apps built on top of Web Components.",
+  "description": "Color vision deficency simulator",
   "main": "service-worker.js",
   "directories": {
     "doc": "docs"
@@ -12,12 +12,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ndesmic/app-template-wc.git"
+    "url": "git+https://github.com/ndesmic/cvd-sim.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ndesmic/app-template-wc/issues"
+    "url": "https://github.com/ndesmic/svd-sim/issues"
   },
-  "homepage": "https://github.com/ndesmic/app-template-wc#readme"
+  "homepage": "https://github.com/ndesmic/cvd-sim#readme"
 }

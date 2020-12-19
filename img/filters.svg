@@ -1,6 +1,6 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" height="720" width="720">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" height="1000" width="720">
 	<defs>
-		<filter id="protanomaly">
+		<filter id="protanopia-g" color-interpolation-filters="sRGB">
 		  <feColorMatrix values="
 			0.152286 1.052583 -0.204868 0.000 0.000
 			0.114503 0.786281 0.099216  0.000 0.000
@@ -8,7 +8,7 @@
 			0.000 0.000 0.000 1.000 0.000" />
 		</filter>
 		<!--Not correct-->
-		<filter id="protanopia-bad">
+		<filter id="protanopia-bad" >
 			<feColorMatrix values="
 				17.8824, 43.5161, 4.1193, 0, 0,
 				3.4557, 27.1554, 3.8671, 0, 0,
@@ -25,71 +25,54 @@
 				-0.0003, -0.0041, 0.6932, 0, 0,
 				0, 0, 0, 1, 0" />
 		</filter>
-
-		<filter id="protanopia" color-interpolation-filters="sRGB" >
+		<filter id="protanopia" >
 			<feColorMatrix values="
 				0.1120 0.8853 -0.0004 0 0
 				0.1126 0.8897 -0.0001 0 0
 				0.0045 0.0000 1.00191 0 0
 				0 0 0 1 0" />
 		</filter>
-		<filter id="deuteranomaly">
+		<filter id="deuteranopia-g" color-interpolation-filters="sRGB">
 			<feColorMatrix values="
 		 		0.367 0.861 -0.228 0.000 0.000
 				0.280 0.673 0.047 0.000 0.000
 				-0.012 0.043 0.969 0.000 0.000
 				0.000 0.000 0.000 1.000 0.000" />
 		</filter>
-		<filter id="deuteranopia"><-- fix -->
+		<filter id="deuteranopia" color-interpolation-filters="sRGB">
 			<feColorMatrix values="
-		 		0.367 0.861 -0.228 0.000 0.000
-				0.280 0.673 0.047 0.000 0.000
-				-0.012 0.043 0.969 0.000 0.000
-				0.000 0.000 0.000 1.000 0.000" />
+		 		0.2920, 0.7054, -0.0003, 0, 0,
+				0.2934, 0.7089, 0.0000, 0, 0,
+				-0.02098, 0.02559, 1.0019, 0, 0,
+				0, 0, 0, 1, 0" />
 		</filter>
-		<filter id="tritanomaly">
+		<filter id="tritanopia-g" color-interpolation-filters="sRGB">
 			<feColorMatrix values="
 			  1.255528 -0.076749 -0.178779 0.000 0.000
 			  -0.078411 0.930809 0.147602 0.000 0.000
 			  0.004733 0.691367 0.303900 0.000 0.000
 			  0.000 0.000 0.000 1.000 0.000" />
 		</filter>
-		<filter id="tritanopia"><-- fix -->
+		<filter id="tritanopia" color-interpolation-filters="sRGB">
 			<feColorMatrix values="
-			  1.255528 -0.076749 -0.178779 0.000 0.000
-			  -0.078411 0.930809 0.147602 0.000 0.000
-			  0.004733 0.691367 0.303900 0.000 0.000
-			  0.000 0.000 0.000 1.000 0.000" />
+				0.4926, 0.5049, -0.0002, 0, 0
+				0.4940, 0.5084, 0.0001, 0, 0
+				-3.0081, 3.0131, 0.9999, 0, 0
+				0, 0, 0, 1, 0" />
+		</filter>
+		<filter id="tritanopia-fixed" color-interpolation-filters="sRGB">
+			<feColorMatrix values="
+				1.01595, 0.1351, -0.1488, 0, 0
+				-0.01542, 0.8683, 0.1448, 0, 0
+				0.1002, 0.8168, 0.1169, 0, 0
+				0, 0, 0, 1, 0" />
+		</filter>
+		<filter id="achromatopsia" color-interpolation-filters="sRGB">
+			<feColorMatrix values="
+				0.21, 0.72, 0.07, 0, 0
+  				0.21, 0.72, 0.07, 0, 0
+  				0.21, 0.72, 0.07, 0, 0
+  				0, 0, 0, 1, 0" />
 		</filter>
 	</defs>
-	<g filter="url(#protanomaly)">
-		<circle cx="50" cy="50" r="40" fill="red" />
-		<circle cx="50" cy="100" r="40" fill="green" />
-		<circle cx="50" cy="150" r="40" fill="blue" />
-	</g>
-	<g filter="url(#protanopia)" >
-		<circle cx="150" cy="50" r="40" fill="red" />
-		<circle cx="150" cy="100" r="40" fill="green" />
-		<circle cx="150" cy="150" r="40" fill="blue" />
-	</g>
-	<g filter="url(#deuteranomaly)">
-		<circle cx="50" cy="250" r="40" fill="red" />
-		<circle cx="50" cy="300" r="40" fill="green" />
-		<circle cx="50" cy="350" r="40" fill="blue" />
-	</g>
-	<g filter="url(#deuteranopia)" >
-		<circle cx="150" cy="250" r="40" fill="red" />
-		<circle cx="150" cy="300" r="40" fill="green" />
-		<circle cx="150" cy="350" r="40" fill="blue" />
-	</g>
-	<g filter="url(#tritanomaly)">
-		<circle cx="50" cy="450" r="40" fill="red" />
-		<circle cx="50" cy="500" r="40" fill="green" />
-		<circle cx="50" cy="550" r="40" fill="blue" />
-	</g>
-	<g filter="url(#tritanopia)" >
-		<circle cx="150" cy="450" r="40" fill="red" />
-		<circle cx="150" cy="500" r="40" fill="green" />
-		<circle cx="150" cy="550" r="40" fill="blue" />
-	</g>
-</svg>
+	<g filter="url(
