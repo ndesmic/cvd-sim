@@ -1,0 +1,23 @@
+{
+  "name": "basic-wc",
+  "version": "1.0.0",
+  "description": "My boilerplate for 0 dependency web apps built on top of Web Components.",
+  "main": "service-worker.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx http-server -o -c-1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ndesmic/app-template-wc.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ndesmic/app-template-wc/issues"
+  },
+  "homepage": "https://github.com/ndesmic/app-template-wc#readme"
+}
