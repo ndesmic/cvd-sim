@@ -1,5 +1,6 @@
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" height="1000" width="720">
 	<defs>
+		<!--https://www.inf.ufrgs.br/~oliveira/pubs_files/CVD_Simulation/CVD_Simulation.html  -->
 		<filter id="protanopia-g" color-interpolation-filters="sRGB">
 		  <feColorMatrix values="
 			0.152286 1.052583 -0.204868 0.000 0.000
@@ -32,6 +33,7 @@
 				0.0045 0.0000 1.00191 0 0
 				0 0 0 1 0" />
 		</filter>
+		<!--https://www.inf.ufrgs.br/~oliveira/pubs_files/CVD_Simulation/CVD_Simulation.html  -->
 		<filter id="deuteranopia-g" color-interpolation-filters="sRGB">
 			<feColorMatrix values="
 		 		0.367 0.861 -0.228 0.000 0.000
@@ -46,6 +48,7 @@
 				-0.02098, 0.02559, 1.0019, 0, 0,
 				0, 0, 0, 1, 0" />
 		</filter>
+		<!--https://www.inf.ufrgs.br/~oliveira/pubs_files/CVD_Simulation/CVD_Simulation.html  -->
 		<filter id="tritanopia-g" color-interpolation-filters="sRGB">
 			<feColorMatrix values="
 			  1.255528 -0.076749 -0.178779 0.000 0.000
@@ -75,4 +78,4 @@
   				0, 0, 0, 1, 0" />
 		</filter>
 	</defs>
-<svg>
+</svg>
