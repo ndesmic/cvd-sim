@@ -87,7 +87,7 @@
                 <img src="./img/color-test.svg">
             </td>
             <td>
-                <wc-shader-canvas image="./img/color-test.svg" height="200" width="200">
+                <wc-gpu-shader-canvas image="./img/color-test.svg" height="200" width="200">
                     precision highp float;
                     uniform sampler2D u_image;
                     varying vec2 vTextureCoordinate;
@@ -105,10 +105,10 @@
                 
                     gl_FragColor = target;
                     }
-                </wc-shader-canvas>
+                </wc-gpu-shader-canvas>
             </td>
             <td>
-                <wc-shader-canvas image="./img/color-test.svg" height="200" width="200">
+                <wc-gpu-shader-canvas image="./img/color-test.svg" height="200" width="200">
                     precision mediump float;
                     uniform sampler2D u_image;
                     varying vec2 vTextureCoordinate;
@@ -126,10 +126,10 @@
                 
                     gl_FragColor = target;
                     }
-                </wc-shader-canvas>
+                </wc-gpu-shader-canvas>
             </td>
             <td>
-                <wc-shader-canvas image="./img/color-test.svg" height="200" width="200">
+                <wc-gpu-shader-canvas image="./img/color-test.svg" height="200" width="200">
                     precision mediump float;
                     uniform sampler2D u_image;
                     varying vec2 vTextureCoordinate;
@@ -147,10 +147,10 @@
                 
                     gl_FragColor = target;
                     }
-                </wc-shader-canvas>
+                </wc-gpu-shader-canvas>
             </td>
             <td>
-                <wc-shader-canvas image="./img/color-test.svg" height="200" width="200">
+                <wc-gpu-shader-canvas image="./img/color-test.svg" height="200" width="200">
                     precision highp float;
                     uniform sampler2D u_image;
                     varying vec2 vTextureCoordinate;
@@ -169,10 +169,10 @@
                         
                         gl_FragColor = target;
                     }
-                </wc-shader-canvas>
+                </wc-gpu-shader-canvas>
             </td>
             <td>
-                <wc-shader-canvas image="./img/color-test.svg" height="200" width="200">
+                <wc-gpu-shader-canvas image="./img/color-test.svg" height="200" width="200">
                     precision highp float;
                     uniform sampler2D u_image;
                     varying vec2 vTextureCoordinate;
@@ -192,7 +192,7 @@
                 
                         gl_FragColor = target;
                     }
-                </wc-shader-canvas>
+                </wc-gpu-shader-canvas>
             </td>
         </tr>
     </table>
@@ -350,7 +350,7 @@
             </td>
         </tr>
     </table>
-    <script src="./js/components/shader-canvas.js" type="module"></script>
+    <script src="./js/components/wc-gpu-shader-canvas.js" type="module"></script>
     <script src="./js/components/wc-cpu-shader-canvas.js" type="module"></script>
     <script src="./js/scratch-pad.js" type="module"></script>
 </body>

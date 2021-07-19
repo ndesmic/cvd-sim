@@ -7,13 +7,14 @@ function loadImage(url) {
 	});
 }
 
-export class WcShaderCanvas extends HTMLElement {
-	static observedAttributes = ["image", "height", "width", "colors"];
+export class WcGpuShaderCanvas extends HTMLElement {
+	static observedAttributes = ["image", "height", "width", "colors", "globals"];
 	#height = 240;
 	#width = 320;
 	#image;
 	#colors;
 	#setReady;
+	#globals;
 	ready = new Promise(res => { this.#setReady = res; });
 	constructor() {
 		super();
@@ -27,13 +28,14 @@ export class WcShaderCanvas extends HTMLElement {
 		element.compileShaders = element.compileShaders.bind(element);
 		element.attachShaders = element.attachShaders.bind(element);
 		element.render = element.render.bind(element);
+		element.update = element.update.bind(element);
 	}
 	async connectedCallback() {
 		this.createShadowDom();
 		this.cacheDom();
 		this.attachEvents();
 		await this.bootGpu();
-		this.render();
+		this.update();
 		this.#setReady();
 	}
 	createShadowDom() {
@@ -46,6 +48,11 @@ export class WcShaderCanvas extends HTMLElement {
 				<canvas width="${this.#width}px" height="${this.#height}px"></canvas>
 				<div id="message"></div>
 			`;
+	}
+	update(){
+		if(!this.context) return;
+		this.createUniforms();
+		this.render();
 	}
 	cacheDom() {
 		this.dom = {};
@@ -130,6 +137,35 @@ export class WcShaderCanvas extends HTMLElement {
 
 		this.context.texImage2D(this.context.TEXTURE_2D, 0, this.context.RGBA, this.context.RGBA, this.context.UNSIGNED_BYTE, image);
 	}
+	createUniforms(){
+		if(!this.#globals) return;
+		Object.entries(this.#globals).forEach(([key, val]) => {
+			const location = this.context.getUniformLocation(this.program, key);
+			if(!location) return;
+
+			if(Array.isArray(val)){
+				switch(val.length){
+					case 1: {
+						this.context.uniform1fv(location, val);
+					}
+					case 2: {
+						this.context.uniform2fv(location, val);
+					}
+					case 3: {
+						this.context.uniform3fv(location, val);
+					}
+					case 4: {
+						this.context.uniform4fv(location, val);
+					}
+					default: {
+						console.error(`Invalid dimension for binding uniforms. ${key} with value of length ${val.length}`);
+					}
+				}
+			} else {
+				this.context.uniform1f(location, val);
+			}
+		});
+	}
 	compileShaders() {
 		const vertexShaderText = `
 				attribute vec3 aVertexPosition;
@@ -211,7 +247,12 @@ export class WcShaderCanvas extends HTMLElement {
 			return [...array].map(x => x / 255);
 		});
 	}
+	set globals(val) {
+		val = typeof (val) === "object" ? val : JSON.parse(val);
+		this.#globals = val;
+		this.update();
+	}
 	//TODO: throw away program on detach
 }
 
-customElements.define("wc-shader-canvas", WcShaderCanvas);
+customElements.define("wc-gpu-shader-canvas", WcGpuShaderCanvas);

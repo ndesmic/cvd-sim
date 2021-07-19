@@ -31,6 +31,15 @@ export function clampVector(vector, low = 0, high = 1){
 	];
 }
 
+export function multiplyVector(a, b){
+	return [
+		a[0] * b[0],
+		a[1] * b[1],
+		a[2] * b[2],
+		a[3] * b[3],
+	];
+}
+
 export function multiplyMatrix(a, b) {
 	const matrix = [
 		new Array(4),
@@ -54,4 +63,15 @@ export function transpose(matrix){
 		[matrix[0][2], matrix[1][2], matrix[2][2], matrix[3][2]],
 		[matrix[0][3], matrix[1][3], matrix[2][3], matrix[3][3]],
 	];
+}
+
+export function lerp(start, end, t) {
+	const result = [];
+	for (let row = 0; row < start.length; row++) {
+		const newRow = [];
+		for (let col = 0; col < start[0].length; col++) {
+			newRow.push(start[row][col] + (end[row][col] - start[row][col]) * t)
+		}
+		result.push(newRow);
+	} return result;
 }

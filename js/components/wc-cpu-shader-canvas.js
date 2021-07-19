@@ -14,7 +14,10 @@ export class WcCpuShaderCanvas extends HTMLElement {
 	#height = 100;
 	#width = 100;
 	#context;
-	static observedAttributes = ["image", "height", "width"];
+	#mod;
+	#globals;
+
+	static observedAttributes = ["image", "height", "width", "src", "globals"];
 	constructor() {
 		super();
 		this.bind(this);
@@ -51,7 +54,13 @@ export class WcCpuShaderCanvas extends HTMLElement {
 		}
 	}
 	update(){
-		const program = new Function(["color", "Matrix"], this.textContent);
+		const program = this.#mod
+			? this.#mod.default
+			: this.textContent.trim() !== "" 
+				? new Function(["color", "Matrix", "Globals"], this.textContent)
+				: null;
+
+		if(!program || !this.#context) return;
 		this.#context.reset();
 		if(this.#image){
 			this.#context.drawImage(this.#image, 0, 0);
@@ -66,7 +75,7 @@ export class WcCpuShaderCanvas extends HTMLElement {
 				data[i + 1] / 255,
 				data[i + 2] / 255,
 				data[i + 3] / 255,
-			], Matrix);
+			], Matrix, this.#globals);
 			data[i] = Math.floor(pixel[0] * 255);
 			data[i + 1] = Math.floor(pixel[1] * 255);
 			data[i + 2] = Math.floor(pixel[2] * 255);
@@ -79,6 +88,13 @@ export class WcCpuShaderCanvas extends HTMLElement {
 		loadImage(val)
 			.then(img => {
 				this.#image = img;
+				this.update();
+			});
+	}
+	set src(val){
+		import(val)
+			.then(mod => {
+				this.#mod = mod;
 				this.update();
 			});
 	}
@@ -95,6 +111,11 @@ export class WcCpuShaderCanvas extends HTMLElement {
 		if(this.dom){
 			this.dom.canvas.width = val;
 		}
+	}
+	set globals(val){
+		val = typeof(val) === "object" ? val : JSON.parse(val);
+		this.#globals = val;
+		this.update();
 	}
 }
 

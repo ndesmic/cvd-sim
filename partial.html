@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>Partial CVD Test</title>
+	<link rel="stylesheet" href="css/index.css">
+	</link>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+	<link rel="icon" href="img/icon32x32.png" type="image/png" />
+</head>
+
+<body lang="en">
+	<table>
+		<thead>
+			<th>Color Space</th>
+			<th>Original</th>
+			<th>Protanomaly</th>
+		</thead>
+		<tbody>
+			<tr>
+				<td>RGB-space (JS)</td>
+				<td>
+					<img src="./img/color-test.svg">
+				</td>
+				<td>
+					<wc-cpu-shader-canvas id="protanomaly-rgb-js" image="./img/color-test.svg" height="200" width="200">
+						const protanopia = [
+							[0.1120, 0.8853, -0.0005, 0],
+							[0.1126, 0.8897, -0.0001, 0],
+							[0.0045, 0.0001, 1.00191, 0],
+							[0, 0, 0, 1]
+						];
+						const normalVision=[
+							[1, 0, 0, 0],
+							[0, 1, 0, 0],
+							[0, 0, 1, 0],
+							[0, 0, 0, 1]
+						];
+						const partial = Matrix.lerp(normalVision, protanopia, Globals.t);
+						const result = Matrix.crossMultiplyMatrixVector(color, partial);
+						return result;
+					</wc-cpu-shader-canvas>
+				</td>
+			</tr>
+			<tr>
+				<td>LMS-space (JS)</td>
+				<td>
+					<img src="./img/color-test.svg">
+				</td>
+				<td>
+					<wc-cpu-shader-canvas id="protanomaly-lms-js" image="./img/color-test.svg" height="200" width="200">
+						const protanopia = [
+							[0.1120, 0.8853, -0.0005, 0],
+							[0.1126, 0.8897, -0.0001, 0],
+							[0.0045, 0.0001, 1.00191, 0],
+							[0, 0, 0, 1]
+						];
+						const normalVision=[
+							[1, 0, 0, 0],
+							[0, 1, 0, 0],
+							[0, 0, 1, 0],
+							[0, 0, 0, 1]
+						];
+						const partial = Matrix.lerp(normalVision, protanopia, Globals.t);
+						const result = Matrix.crossMultiplyMatrixVector(color, partial);
+						return result;
+					</wc-cpu-shader-canvas>
+				</td>
+			</tr>
+			<tr>
+				<td>RGB-space (GLSL)</td>
+				<td>
+					<img src="./img/color-test.svg">
+				</td>
+				<td>
+					<wc-gpu-shader-canvas id="protanomaly-rgb-glsl" image="./img/color-test.svg" height="200" width="200">
+						precision highp float;
+						uniform sampler2D u_image;
+						uniform float t;
+						varying vec2 vTextureCoordinate;
+						
+						mat4 protanopia = mat4(
+							0.1120, 0.8853, -0.0004, 0,
+							0.1126, 0.8897, -0.0001, 0,
+							0.0045, 0.0000, 1.00191, 0,
+							0, 0, 0, 1
+						);
+						
+						mat4 normalVision = mat4(
+							1.0, 0.0, 0.0, 0.0,
+							0.0, 1.0, 0.0, 0.0,
+							0.0, 0.0, 1.0, 0.0,
+							0.0, 0.0, 0.0, 1.0
+						);
+
+						mat4 lerp(mat4 start, mat4 end, float t){
+							return start + (end - start) * t;
+						}
+						
+						void main() {
+							vec4 source = texture2D(u_image, vTextureCoordinate);
+							mat4 partial = lerp(normalVision, protanopia, t);
+					
+							vec4 target = source * partial;
+						
+							gl_FragColor = target;
+						}
+					</wc-gpu-shader-canvas>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					RGB-space (SVG Filter)
+				</td>
+				<td>
+					<img src="./img/color-test.svg">
+				</td>
+				<td>
+					<svg height="0" width="0">
+						<defs>
+							<filter id="protanomaly-filter" color-interpolation-filters="sRGB">
+								<feColorMatrix type="matrix" id="protanomaly-color-matrix" />
+							</filter>
+						</defs>
+					</svg>
+					<img src="./img/color-test.svg" style="filter: url(#protanomaly-filter);">
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<script src="./js/components/wc-cpu-shader-canvas.js" type="module"></script>
+	<script src="./js/components/wc-gpu-shader-canvas.js" type="module"></script>
+	<script src="./js/partial.js" type="module"></script>
+</body>
+
+</html>
