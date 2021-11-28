@@ -1,13 +1,6 @@
-function loadImage(url) {
-	return new Promise((res, rej) => {
-		const image = new Image();
-		image.src = url;
-		image.onload = () => res(image);
-		image.onerror = rej;
-	});
-}
+import { loadImage } from "../lib/util.js";
 
-export class WcGpuShaderCanvas extends HTMLElement {
+export class WcGlslShaderCanvas extends HTMLElement {
 	static observedAttributes = ["image", "height", "width", "colors", "globals"];
 	#height = 240;
 	#width = 320;
@@ -49,15 +42,16 @@ export class WcGpuShaderCanvas extends HTMLElement {
 				<div id="message"></div>
 			`;
 	}
-	update(){
-		if(!this.context) return;
+	update() {
+		if (!this.context) return;
 		this.createUniforms();
 		this.render();
 	}
 	cacheDom() {
-		this.dom = {};
-		this.dom.canvas = this.shadowRoot.querySelector("canvas");
-		this.dom.message = this.shadowRoot.querySelector("#message");
+		this.dom = {
+			canvas: this.shadowRoot.querySelector("canvas"),
+			message: this.shadowRoot.querySelector("#message")
+		};
 	}
 	attachEvents() {
 
@@ -73,7 +67,7 @@ export class WcGpuShaderCanvas extends HTMLElement {
 		this.createUvs();
 		this.createIndicies();
 		this.createColors();
-		if(this.#image){
+		if (this.#image) {
 			this.createTexture(await loadImage(this.#image));
 		}
 	}
@@ -92,7 +86,7 @@ export class WcGpuShaderCanvas extends HTMLElement {
 		this.context.enableVertexAttribArray(positionLocation);
 		this.context.vertexAttribPointer(positionLocation, 2, this.context.FLOAT, false, 0, 0);
 	}
-	createColors(){
+	createColors() {
 		const colors = new Float32Array(this.#colors);
 		const colorBuffer = this.context.createBuffer();
 		this.context.bindBuffer(this.context.ARRAY_BUFFER, colorBuffer);
@@ -137,14 +131,14 @@ export class WcGpuShaderCanvas extends HTMLElement {
 
 		this.context.texImage2D(this.context.TEXTURE_2D, 0, this.context.RGBA, this.context.RGBA, this.context.UNSIGNED_BYTE, image);
 	}
-	createUniforms(){
-		if(!this.#globals) return;
+	createUniforms() {
+		if (!this.#globals) return;
 		Object.entries(this.#globals).forEach(([key, val]) => {
 			const location = this.context.getUniformLocation(this.program, key);
-			if(!location) return;
+			if (!location) return;
 
-			if(Array.isArray(val)){
-				switch(val.length){
+			if (Array.isArray(val)) {
+				switch (val.length) {
 					case 1: {
 						this.context.uniform1fv(location, val);
 					}
@@ -197,12 +191,12 @@ export class WcGpuShaderCanvas extends HTMLElement {
 			this.setMessage(`⚠ Failed to compile fragment shader: ${this.context.getShaderInfoLog(this.fragmentShader)}`);
 		}
 	}
-	setMessage(message){
+	setMessage(message) {
 		this.dom.message.textContent = message;
 		this.dom.message.style.display = "block";
 		this.dom.canvas.style.display = "none";
 	}
-	unsetMessage(){
+	unsetMessage() {
 		this.dom.message.textContent = "";
 		this.dom.message.style.display = "none";
 		this.dom.canvas.style.display = "block";
@@ -222,13 +216,13 @@ export class WcGpuShaderCanvas extends HTMLElement {
 	}
 	set height(value) {
 		this.#height = value;
-		if(this.dom){
+		if (this.dom) {
 			this.dom.canvas.height = value;
 		}
 	}
 	set width(value) {
 		this.#width = value;
-		if(this.dom){
+		if (this.dom) {
 			this.dom.canvas.height = value;
 		}
 	}
@@ -237,10 +231,10 @@ export class WcGpuShaderCanvas extends HTMLElement {
 		loadImage(value)
 			.then(img => this.createTexture(img));
 	}
-	set colors(value){
+	set colors(value) {
 		this.#colors = value.split(/[,;\s]\s*/g).map(x => parseFloat(x.trim()));
 	}
-	get pixelData(){
+	get pixelData() {
 		return this.ready.then(() => {
 			const array = new Uint8Array(this.#height * this.#width * 4);
 			this.context.readPixels(0, 0, this.#width, this.#height, this.context.RGBA, this.context.UNSIGNED_BYTE, array);
@@ -255,4 +249,4 @@ export class WcGpuShaderCanvas extends HTMLElement {
 	//TODO: throw away program on detach
 }
 
-customElements.define("wc-gpu-shader-canvas", WcGpuShaderCanvas);
+customElements.define("wc-glsl-shader-canvas", WcGlslShaderCanvas);

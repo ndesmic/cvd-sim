@@ -1,32 +1,25 @@
 import * as Matrix from "../lib/matrix.js";
+import { loadImage } from "../lib/util.js";
 
-function loadImage(url) {
-	return new Promise((res, rej) => {
-		const image = new Image();
-		image.src = url;
-		image.onload = () => res(image);
-		image.onerror = rej;
-	});
-}
-
-export class WcCpuShaderCanvas extends HTMLElement {
+export class WcJsShaderCanvas extends HTMLElement {
 	#image;
-	#height = 100;
-	#width = 100;
+	#height = 240;
+	#width = 320;
 	#context;
 	#mod;
 	#globals;
+	#colorSpace;
 
-	static observedAttributes = ["image", "height", "width", "src", "globals"];
+	static observedAttributes = ["image", "height", "width", "src", "globals", "color-space"];
 	constructor() {
 		super();
 		this.bind(this);
 	}
 	bind(element) {
-		this.render = this.render.bind(element);
+		this.createShadowDom = this.createShadowDom.bind(element);
 		this.update = this.update.bind(element);
 	}
-	render() {
+	createShadowDom() {
 		this.attachShadow({ mode: "open" });
 		this.shadowRoot.innerHTML = `
 			<style>
@@ -38,9 +31,9 @@ export class WcCpuShaderCanvas extends HTMLElement {
         `;
 	}
 	connectedCallback() {
-		this.render();
+		this.createShadowDom();
 		this.cacheDom();
-		this.#context = this.dom.canvas.getContext("2d");
+		this.#context = this.dom.canvas.getContext("2d", { colorSpace: this.#colorSpace ?? "srgb" });
 		this.update();
 	}
 	cacheDom() {
@@ -49,26 +42,26 @@ export class WcCpuShaderCanvas extends HTMLElement {
 		};
 	}
 	attributeChangedCallback(name, oldValue, newValue) {
-		if(oldValue !== newValue){
+		if (oldValue !== newValue) {
 			this[name] = newValue
 		}
 	}
-	update(){
+	update() {
 		const program = this.#mod
 			? this.#mod.default
-			: this.textContent.trim() !== "" 
+			: this.textContent.trim() !== ""
 				? new Function(["color", "Matrix", "Globals"], this.textContent)
 				: null;
 
-		if(!program || !this.#context) return;
-		this.#context.reset();
-		if(this.#image){
-			this.#context.drawImage(this.#image, 0, 0);
+		if (!program || !this.#context) return;
+		this.#context.clearRect(0, 0, this.#width, this.#height);
+		if (this.#image) {
+			this.#context.drawImage(this.#image, 0, 0, this.#width, this.#height);
 		}
 
 		const imageData = this.#context.getImageData(0, 0, this.#width, this.#height);
 		let i = 0;
-		while(i < imageData.data.length){
+		while (i < imageData.data.length) {
 			const data = imageData.data;
 			const pixel = program([
 				data[i] / 255,
@@ -91,7 +84,7 @@ export class WcCpuShaderCanvas extends HTMLElement {
 				this.update();
 			});
 	}
-	set src(val){
+	set src(val) {
 		import(val)
 			.then(mod => {
 				this.#mod = mod;
@@ -101,22 +94,25 @@ export class WcCpuShaderCanvas extends HTMLElement {
 	set height(val) {
 		val = parseInt(val);
 		this.#height = val;
-		if(this.dom){
+		if (this.dom) {
 			this.dom.canvas.height = val;
 		}
 	}
 	set width(val) {
 		val = parseInt(val);
 		this.#width = val;
-		if(this.dom){
+		if (this.dom) {
 			this.dom.canvas.width = val;
 		}
 	}
-	set globals(val){
-		val = typeof(val) === "object" ? val : JSON.parse(val);
+	set globals(val) {
+		val = typeof (val) === "object" ? val : JSON.parse(val);
 		this.#globals = val;
 		this.update();
 	}
+	set ["color-space"](val){
+		this.#colorSpace = val;
+	}
 }
 
-customElements.define("wc-cpu-shader-canvas", WcCpuShaderCanvas);
+customElements.define("wc-js-shader-canvas", WcJsShaderCanvas);

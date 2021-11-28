@@ -3,6 +3,7 @@ import { lerp } from "./lib/matrix.js";
 const protanomalyRgbJs = document.querySelector("#protanomaly-rgb-js");
 const protanomalyLmsJs = document.querySelector("#protanomaly-lms-js");
 const protanomalyRgbGlsl = document.querySelector("#protanomaly-rgb-glsl");
+const protanomalyRgbWgsl = document.querySelector("#protanomaly-rgb-wgsl");
 
 const protanomalyColorMatrix = document.querySelector("#protanomaly-color-matrix");
 
@@ -13,6 +14,7 @@ function draw() {
 		protanomalyLmsJs.globals = { t: (now % 5000) / 5000 };
 		protanomalyRgbGlsl.globals = { t: (now % 5000) / 5000 };
 		protanomalyColorMatrix.setAttribute("values", computeProtanomaly((now % 5000) / 5000).flat().join(" "));
+		protanomalyRgbWgsl.globals = [(now % 5000) / 5000 ];
 		draw();
 	});
 }

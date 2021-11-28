@@ -24,7 +24,7 @@
 					<img src="./img/color-test.svg">
 				</td>
 				<td>
-					<wc-cpu-shader-canvas id="protanomaly-rgb-js" image="./img/color-test.svg" height="200" width="200">
+					<wc-js-shader-canvas id="protanomaly-rgb-js" image="./img/color-test.svg" height="200" width="100">
 						const protanopia = [
 							[0.1120, 0.8853, -0.0005, 0],
 							[0.1126, 0.8897, -0.0001, 0],
@@ -40,7 +40,7 @@
 						const partial = Matrix.lerp(normalVision, protanopia, Globals.t);
 						const result = Matrix.crossMultiplyMatrixVector(color, partial);
 						return result;
-					</wc-cpu-shader-canvas>
+					</wc-js-shader-canvas>
 				</td>
 			</tr>
 			<tr>
@@ -49,7 +49,7 @@
 					<img src="./img/color-test.svg">
 				</td>
 				<td>
-					<wc-cpu-shader-canvas id="protanomaly-lms-js" image="./img/color-test.svg" height="200" width="200">
+					<wc-js-shader-canvas id="protanomaly-lms-js" image="./img/color-test.svg" height="200" width="100">
 						const protanopia = [
 							[0.1120, 0.8853, -0.0005, 0],
 							[0.1126, 0.8897, -0.0001, 0],
@@ -65,7 +65,7 @@
 						const partial = Matrix.lerp(normalVision, protanopia, Globals.t);
 						const result = Matrix.crossMultiplyMatrixVector(color, partial);
 						return result;
-					</wc-cpu-shader-canvas>
+					</wc-js-shader-canvas>
 				</td>
 			</tr>
 			<tr>
@@ -74,7 +74,7 @@
 					<img src="./img/color-test.svg">
 				</td>
 				<td>
-					<wc-gpu-shader-canvas id="protanomaly-rgb-glsl" image="./img/color-test.svg" height="200" width="200">
+					<wc-glsl-shader-canvas id="protanomaly-rgb-glsl" image="./img/color-test.svg" height="200" width="100">
 						precision highp float;
 						uniform sampler2D u_image;
 						uniform float t;
@@ -106,7 +106,7 @@
 						
 							gl_FragColor = target;
 						}
-					</wc-gpu-shader-canvas>
+					</wc-glsl-shader-canvas>
 				</td>
 			</tr>
 			<tr>
@@ -127,10 +127,71 @@
 					<img src="./img/color-test.svg" style="filter: url(#protanomaly-filter);">
 				</td>
 			</tr>
+			<tr>
+				<td>
+					RGB-space (WGSL)
+				</td>
+				<td>
+					<img src="./img/color-test.svg">
+				</td>
+				<td>
+					<wc-wgsl-shader-canvas id="protanomaly-rgb-wgsl" image="./img/color-test.svg" height="200" width="100" globals="[0.5]">
+						<script type="wgsl">
+							[[block]]
+							struct Uniforms {
+								t: f32;
+							};
+							[[group(0), binding(0)]] var my_sampler: sampler;
+							[[group(0), binding(1)]] var my_texture: texture_2d<f32>;
+							[[group(1), binding(0)]] var<uniform> my_uniform: Uniforms;
+							struct VertexOut {
+								[[builtin(position)]] position : vec4<f32>;
+								[[location(0)]] uv : vec2<f32>;
+							};
+
+							[[stage(vertex)]]
+							fn vertex_main([[location(0)]] position: vec2<f32>, [[location(1)]] uv: vec2<f32>) -> VertexOut
+							{
+								var output : VertexOut;
+								output.position = vec4<f32>(position, 0.0, 1.0);
+								output.uv = uv;
+								return output;
+							}
+
+							fn lerp(start: mat4x4<f32>, end: mat4x4<f32>, t: f32) -> mat4x4<f32> {
+								return start + (end - start) * t;
+							}
+
+							[[stage(fragment)]]
+							fn fragment_main(fragData: VertexOut) -> [[location(0)]] vec4<f32>
+							{
+								var protanopia = mat4x4<f32>(
+									vec4<f32>(0.1120, 0.1126, 0.0045, 0.0),
+									vec4<f32>(0.8853, 0.8897, 0.0000, 0.0),
+									vec4<f32>(-0.0004, -0.0001, 1.00191, 0.0),
+									vec4<f32>(0.0, 0.0, 0.0, 1.0)
+								);
+
+								var normalVision = mat4x4<f32>(
+									vec4<f32>(1.0, 0.0, 0.0, 0.0),
+									vec4<f32>(0.0, 1.0, 0.0, 0.0),
+									vec4<f32>(0.0, 0.0, 1.0, 0.0),
+									vec4<f32>(0.0, 0.0, 0.0, 1.0)
+								);					
+
+								var partial: mat4x4<f32> = lerp(normalVision, protanopia, my_uniform.t);
+
+								return  partial * textureSample(my_texture, my_sampler, fragData.uv);
+							}
+						</script>
+					</wc-wgsl-shader-canvas>
+				</td>
+			</tr>
 		</tbody>
 	</table>
-	<script src="./js/components/wc-cpu-shader-canvas.js" type="module"></script>
-	<script src="./js/components/wc-gpu-shader-canvas.js" type="module"></script>
+	<script src="./js/components/wc-js-shader-canvas.js" type="module"></script>
+	<script src="./js/components/wc-glsl-shader-canvas.js" type="module"></script>
+	<script src="./js/components/wc-wgsl-shader-canvas.js" type="module"></script>
 	<script src="./js/partial.js" type="module"></script>
 </body>
 

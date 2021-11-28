@@ -13,56 +13,56 @@
 <body lang="en">
     <svg height="0" width="0">
         <defs>
-            <filter id="protanopia-g" color-interpolation-filters="sRGB">
+            <filter id="protanopia-google" color-interpolation-filters="sRGB">
                 <feColorMatrix values="
         			0.152286 1.052583 -0.204868 0.000 0.000
         			0.114503 0.786281 0.099216  0.000 0.000
         			-0.003882 -0.048116	1.051998 0.000 0.000
         			0.000 0.000 0.000 1.000 0.000" />
             </filter>
-            <filter id="protanopia" color-interpolation-filters="sRGB">
+            <filter id="protanopia" color-interpolation-filters="linearRGB">
                 <feColorMatrix values="
-        				0.1120 0.8853 -0.0004 0 0
-        				0.1126 0.8897 -0.0001 0 0
-        				0.0045 0.0000 1.00191 0 0
-        				0 0 0 1 0" />
+                    0.1120 0.8853 -0.0004 0 0
+                    0.1126 0.8897 -0.0001 0 0
+                    0.0045 0.0000 1.00191 0 0
+                    0 0 0 1 0" />
             </filter>
-            <filter id="deuteranopia-g" color-interpolation-filters="sRGB">
+            <filter id="deuteranopia-google" color-interpolation-filters="sRGB">
                 <feColorMatrix values="
         		 		0.367 0.861 -0.228 0.000 0.000
         				0.280 0.673 0.047 0.000 0.000
         				-0.012 0.043 0.969 0.000 0.000
         				0.000 0.000 0.000 1.000 0.000" />
             </filter>
-            <filter id="deuteranopia" color-interpolation-filters="sRGB">
+            <filter id="deuteranopia" color-interpolation-filters="linearRGB">
                 <feColorMatrix values="
         		 		0.2920, 0.7054, -0.0003, 0, 0,
         				0.2934, 0.7089, 0.0000, 0, 0,
         				-0.02098, 0.02559, 1.0019, 0, 0,
         				0, 0, 0, 1, 0" />
             </filter>
-            <filter id="tritanopia-g" color-interpolation-filters="sRGB">
+            <filter id="tritanopia-google" color-interpolation-filters="sRGB">
                 <feColorMatrix values="
         			  1.255528 -0.076749 -0.178779 0.000 0.000
         			  -0.078411 0.930809 0.147602 0.000 0.000
         			  0.004733 0.691367 0.303900 0.000 0.000
         			  0.000 0.000 0.000 1.000 0.000" />
             </filter>
-            <filter id="tritanopia" color-interpolation-filters="sRGB">
+            <filter id="tritanopia" color-interpolation-filters="linearRGB">
                 <feColorMatrix values="
         				0.4926, 0.5049, -0.0002, 0, 0
         				0.4940, 0.5084, 0.0001, 0, 0
         				-3.0081, 3.0131, 0.9999, 0, 0
         				0, 0, 0, 1, 0" />
             </filter>
-            <filter id="tritanopia-fixed" color-interpolation-filters="sRGB">
+            <filter id="tritanopia-fixed" color-interpolation-filters="linearRGB">
                 <feColorMatrix values="
             			1.01595, 0.1351, -0.1488, 0, 0
             			-0.01542, 0.8683, 0.1448, 0, 0
             			0.1002, 0.8168, 0.1169, 0, 0
             			0, 0, 0, 1, 0" />
             </filter>
-            <filter id="achromatopsia" color-interpolation-filters="sRGB">
+            <filter id="achromatopsia" color-interpolation-filters="linearRGB">
                 <feColorMatrix values="
             		0.21, 0.72, 0.07, 0, 0
               		0.21, 0.72, 0.07, 0, 0
@@ -74,41 +74,61 @@
     <table>
         <thead>
             <tr>
+                <th>Method</th>
                 <th>Original</th>
-                <th>Protanopia (GLSL)</th>
-                <th>Deuteranopia (GLSL)</th>
-                <th>Tritanopia (GLSL)</th>
-                <th>Tritanopia (GLSL, fixed)</th>
-                <th>Achromatopsia (GLSL)</th>
+                <th>Protanopia</th>
+                <th>Deuteranopia</th>
+                <th>Tritanopia</th>
+                <th>Tritanopia (fixed*)</th>
+                <th>Achromatopsia</th>
             </tr>
         </thead>
         <tr>
+            <td>GLSL</td>
             <td>
                 <img src="./img/color-test.svg">
             </td>
             <td>
-                <wc-gpu-shader-canvas image="./img/color-test.svg" height="200" width="200">
+                <wc-glsl-shader-canvas image="./img/color-test.svg" height="200" width="100" id="glsl-protanopia">
                     precision highp float;
                     uniform sampler2D u_image;
                     varying vec2 vTextureCoordinate;
                 
                     mat4 protanopia = mat4(
-                        0.1120, 0.8853, -0.0004, 0,
+                        0.1120, 0.8853, -0.0005, 0,
                         0.1126, 0.8897, -0.0001, 0,
-                        0.0045, 0.0000, 1.00191, 0,
+                        0.0045, 0.0001, 1.00191, 0,
                         0, 0, 0, 1);
+
+                    vec4 srgbToRgb(vec4 color){
+                        bvec4 bcutoff = lessThan(color, vec4(0.04045));
+                        vec4 cutoff = vec4(float(bcutoff[0]), float(bcutoff[1]), float(bcutoff[2]), float(bcutoff[3]));
+                        vec4 higher = pow((color + vec4(0.055)) / vec4(1.055), vec4(2.4));
+                        vec4 lower = color / vec4(12.92);
+                        return mix(higher, lower, cutoff);
+                    }
+
+                    vec4 rgbToSrgb(vec4 color){
+                        bvec4 bcutoff = lessThan(color, vec4(0.0031308));
+                        vec4 cutoff = vec4(float(bcutoff[0]), float(bcutoff[1]), float(bcutoff[2]), float(bcutoff[3]));
+                        vec4 higher = vec4(1.055) * pow(color, vec4(1.0 / 2.4)) - 0.055;
+                        vec4 lower = color * vec4(12.92);
+                        return mix(higher, lower, cutoff);
+                    }
                 
                     void main() {
-                    vec4 source = texture2D(u_image, vTextureCoordinate);
-                
-                    vec4 target = source * protanopia;
-                
-                    gl_FragColor = target;
+                        vec4 source = texture2D(u_image, vTextureCoordinate);
+                    
+                        vec4 linearColor = srgbToRgb(source);
+                        vec4 linearTarget = linearColor * protanopia;
+                        vec4 srgbTarget = rgbToSrgb(linearTarget);
+                    
+                        gl_FragColor = srgbTarget;
                     }
-                </wc-gpu-shader-canvas>
+                </wc-glsl-shader-canvas>
             </td>
             <td>
-                <wc-gpu-shader-canvas image="./img/color-test.svg" height="200" width="200">
+                <wc-glsl-shader-canvas image="./img/color-test.svg" height="200" width="100" id="glsl-deuteranopia">
                     precision mediump float;
                     uniform sampler2D u_image;
                     varying vec2 vTextureCoordinate;
@@ -118,18 +138,36 @@
                         0.2934, 0.7089, 0.0000, 0,
                         -0.02098, 0.02559, 1.0019, 0,
                         0, 0, 0, 1);
+
+                    vec4 srgbToRgb(vec4 color){
+                        bvec4 bcutoff = lessThan(color, vec4(0.04045));
+                        vec4 cutoff = vec4(float(bcutoff[0]), float(bcutoff[1]), float(bcutoff[2]), float(bcutoff[3]));
+                        vec4 higher = pow((color + vec4(0.055)) / vec4(1.055), vec4(2.4));
+                        vec4 lower = color / vec4(12.92);
+                        return mix(higher, lower, cutoff);
+                    }
+
+                    vec4 rgbToSrgb(vec4 color){
+                        bvec4 bcutoff = lessThan(color, vec4(0.0031308));
+                        vec4 cutoff = vec4(float(bcutoff[0]), float(bcutoff[1]), float(bcutoff[2]), float(bcutoff[3]));
+                        vec4 higher = vec4(1.055) * pow(color, vec4(1.0 / 2.4)) - 0.055;
+                        vec4 lower = color * vec4(12.92);
+                        return mix(higher, lower, cutoff);
+                    }
                 
                     void main() {
-                    vec4 source = texture2D(u_image, vTextureCoordinate);
+                        vec4 source = texture2D(u_image, vTextureCoordinate);
                 
-                    vec4 target = source * deuteranopia;
+                         vec4 linearColor = srgbToRgb(source);
+                        vec4 linearTarget = linearColor * deuteranopia;
+                        vec4 srgbTarget = rgbToSrgb(linearTarget);
                 
-                    gl_FragColor = target;
+                        gl_FragColor = srgbTarget;
                     }
-                </wc-gpu-shader-canvas>
+                </wc-glsl-shader-canvas>
             </td>
             <td>
-                <wc-gpu-shader-canvas image="./img/color-test.svg" height="200" width="200">
+                <wc-glsl-shader-canvas image="./img/color-test.svg" height="200" width="100">
                     precision mediump float;
                     uniform sampler2D u_image;
                     varying vec2 vTextureCoordinate;
@@ -139,75 +177,116 @@
                         0.4940, 0.5084, 0.0001, 0,
                         -3.0081, 3.0131, 0.9999, 0,
                         0, 0, 0, 1);
+
+                    vec4 srgbToRgb(vec4 color){
+                        bvec4 bcutoff = lessThan(color, vec4(0.04045));
+                        vec4 cutoff = vec4(float(bcutoff[0]), float(bcutoff[1]), float(bcutoff[2]), float(bcutoff[3]));
+                        vec4 higher = pow((color + vec4(0.055)) / vec4(1.055), vec4(2.4));
+                        vec4 lower = color / vec4(12.92);
+                        return mix(higher, lower, cutoff);
+                    }
+
+                    vec4 rgbToSrgb(vec4 color){
+                        bvec4 bcutoff = lessThan(color, vec4(0.0031308));
+                        vec4 cutoff = vec4(float(bcutoff[0]), float(bcutoff[1]), float(bcutoff[2]), float(bcutoff[3]));
+                        vec4 higher = vec4(1.055) * pow(color, vec4(1.0 / 2.4)) - 0.055;
+                        vec4 lower = color * vec4(12.92);
+                        return mix(higher, lower, cutoff);
+                    }
                 
                     void main() {
-                    vec4 source = texture2D(u_image, vTextureCoordinate);
+                        vec4 source = texture2D(u_image, vTextureCoordinate);
                 
-                    vec4 target = source * tritanopia;
+                        vec4 linearColor = srgbToRgb(source);
+                        vec4 linearTarget = linearColor * tritanopia;
+                        vec4 srgbTarget = rgbToSrgb(linearTarget);
                 
-                    gl_FragColor = target;
+                        gl_FragColor = srgbTarget;
                     }
-                </wc-gpu-shader-canvas>
+                </wc-glsl-shader-canvas>
             </td>
             <td>
-                <wc-gpu-shader-canvas image="./img/color-test.svg" height="200" width="200">
+                <wc-glsl-shader-canvas image="./img/color-test.svg" height="200" width="100">
                     precision highp float;
                     uniform sampler2D u_image;
                     varying vec2 vTextureCoordinate;
                     
-                    
                     mat4 tritanopia = mat4(
-                    1.01595, 0.1351, -0.1488, 0,
-                    -0.01542, 0.8683, 0.1448, 0,
-                    0.1002, 0.8168, 0.1169, 0,
-                    0, 0, 0, 1);
+                        1.01595, 0.1351, -0.1488, 0,
+                        -0.01542, 0.8683, 0.1448, 0,
+                        0.1002, 0.8168, 0.1169, 0,
+                        0, 0, 0, 1);
+
+                    vec4 srgbToRgb(vec4 color){
+                        bvec4 bcutoff = lessThan(color, vec4(0.04045));
+                        vec4 cutoff = vec4(float(bcutoff[0]), float(bcutoff[1]), float(bcutoff[2]), float(bcutoff[3]));
+                        vec4 higher = pow((color + vec4(0.055)) / vec4(1.055), vec4(2.4));
+                        vec4 lower = color / vec4(12.92);
+                        return mix(higher, lower, cutoff);
+                    }
+
+                    vec4 rgbToSrgb(vec4 color){
+                        bvec4 bcutoff = lessThan(color, vec4(0.0031308));
+                        vec4 cutoff = vec4(float(bcutoff[0]), float(bcutoff[1]), float(bcutoff[2]), float(bcutoff[3]));
+                        vec4 higher = vec4(1.055) * pow(color, vec4(1.0 / 2.4)) - 0.055;
+                        vec4 lower = color * vec4(12.92);
+                        return mix(higher, lower, cutoff);
+                    }
 
                     void main() {
                         vec4 source = texture2D(u_image, vTextureCoordinate);
 
-                        vec4 target = source * tritanopia;
+                        vec4 linearColor = srgbToRgb(source);
+                        vec4 linearTarget = linearColor * tritanopia;
+                        vec4 srgbTarget = rgbToSrgb(linearTarget);
                         
-                        gl_FragColor = target;
+                        gl_FragColor = srgbTarget;
                     }
-                </wc-gpu-shader-canvas>
+                </wc-glsl-shader-canvas>
             </td>
             <td>
-                <wc-gpu-shader-canvas image="./img/color-test.svg" height="200" width="200">
+                <wc-glsl-shader-canvas image="./img/color-test.svg" height="200" width="100" id="glsl-achromatopsia">
                     precision highp float;
                     uniform sampler2D u_image;
                     varying vec2 vTextureCoordinate;
             
-                    //0.21 R + 0.72 G + 0.07 B.
             
                     mat4 achromatopsia = mat4(
                     0.21, 0.72, 0.07, 0,
                     0.21, 0.72, 0.07, 0,
                     0.21, 0.72, 0.07, 0,
                     0, 0, 0, 1);
+
+                    vec4 srgbToRgb(vec4 color){
+                        bvec4 bcutoff = lessThan(color, vec4(0.04045));
+                        vec4 cutoff = vec4(float(bcutoff[0]), float(bcutoff[1]), float(bcutoff[2]), float(bcutoff[3]));
+                        vec4 higher = pow((color + vec4(0.055)) / vec4(1.055), vec4(2.4));
+                        vec4 lower = color / vec4(12.92);
+                        return mix(higher, lower, cutoff);
+                    }
+
+                    vec4 rgbToSrgb(vec4 color){
+                        bvec4 bcutoff = lessThan(color, vec4(0.0031308));
+                        vec4 cutoff = vec4(float(bcutoff[0]), float(bcutoff[1]), float(bcutoff[2]), float(bcutoff[3]));
+                        vec4 higher = vec4(1.055) * pow(color, vec4(1.0 / 2.4)) - 0.055;
+                        vec4 lower = color * vec4(12.92);
+                        return mix(higher, lower, cutoff);
+                    }
             
                     void main() {
                         vec4 source = texture2D(u_image, vTextureCoordinate);
-                
-                        vec4 target = source * achromatopsia;
-                
-                        gl_FragColor = target;
+                        
+                        vec4 linearColor = srgbToRgb(source);
+                        vec4 linearTarget = linearColor * achromatopsia;
+                        vec4 srgbTarget = rgbToSrgb(linearTarget);
+                        
+                        gl_FragColor = srgbTarget;
                     }
-                </wc-gpu-shader-canvas>
+                </wc-glsl-shader-canvas>
             </td>
         </tr>
-    </table>
-    <table>
-        <thead>
-            <tr>
-                <th>Original</th>
-                <th>Protanopia (SVG)</th>
-                <th>Deuteranopia (SVG)</th>
-                <th>Tritanopia (SVG)</th>
-                <th>Tritanopia (SVG, fixed)</th>
-                <th>Achromatopsia (SVG)</th>
-            </tr>
-        </thead>
         <tr>
+            <td>SVG</td>
             <td>
                 <img src="./img/color-test.svg">
             </td>
@@ -227,111 +306,505 @@
                 <img src="./img/color-test.svg" style="filter: url(#achromatopsia);">
             </td>
         </tr>
-    </table>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Original</th>
-                <th>Protanopia (JS)</th>
-                <th>Deuteranopia (JS)</th>
-                <th>Tritanopia (JS)</th>
-                <th>Tritanopia (JS, fixed)</th>
-                <th>Achromatopsia (JS)</th>
-            </tr>
-        </thead>
         <tr>
+            <td>JS</td>
             <td>
                 <img src="./img/color-test.svg">
             </td>
             <td>
-                <wc-cpu-shader-canvas image="./img/color-test.svg" height="200" width="200">
+                <wc-js-shader-canvas image="./img/color-test.svg" height="200" width="100" id="js-protanopia">
                     const protanopia = [
                         [0.1120, 0.8853, -0.0005, 0],
                         [0.1126, 0.8897, -0.0001, 0],
                         [0.0045, 0.0001, 1.00191, 0],
                         [0, 0, 0, 1]
                     ];
-                    const result = Matrix.crossMultiplyMatrixVector(color, protanopia);
-                    return result;
-                </wc-cpu-shader-canvas>
+
+                    function srgbToRgb(color) {
+                        return color.map(component => {
+                            const sign = component < 0 ? -1 : 1; 
+                            const abs=Math.abs(component); 
+                            return abs <= 0.04045 
+                                ? component / 12.92 
+                                : sign * Math.pow((abs + 0.055) / 1.055, 2.4); 
+                        }); 
+                    }
+                        
+                    function rgbToSrgb(color) { 
+                        return color.map(component => {
+                            return component < 0.0031308 
+                                ? component * 12.92 
+                                : 1.055 * Math.pow(component, 1/2.4) - 0.055 
+                        }); 
+                    }
+
+                    const linearColor = srgbToRgb(color);
+                    const linearResult = Matrix.crossMultiplyMatrixVector(linearColor, protanopia);
+                    const srgbResult = rgbToSrgb(linearResult);
+                    return srgbResult;
+                </wc-js-shader-canvas>
             </td>
             <td>
-                <wc-cpu-shader-canvas image="./img/color-test.svg" height="200" width="200">
+                <wc-js-shader-canvas image="./img/color-test.svg" height="200" width="100" id="js-dueteranopia">
                     const deuteranopia = [
                         [0.2920, 0.7054, -0.0003, 0],
                         [0.2934, 0.7089, 0.0000, 0],
                         [-0.02098, 0.02559, 1.0019, 0],
                         [0, 0, 0, 1]
                     ];
-                    const result = Matrix.crossMultiplyMatrixVector(color, deuteranopia);
-                    return result;
-                </wc-cpu-shader-canvas>
+
+                    function srgbToRgb(color) {
+                        return color.map(component => {
+                            const sign = component < 0 ? -1 : 1; 
+                            const abs=Math.abs(component); 
+                            return abs <= 0.04045 
+                                ? component / 12.92 
+                                : sign * Math.pow((abs + 0.055) / 1.055, 2.4); 
+                        }); 
+                    }
+                        
+                    function rgbToSrgb(color) { 
+                        return color.map(component => {
+                            return component < 0.0031308 
+                                ? component * 12.92 
+                                : 1.055 * Math.pow(component, 1/2.4) - 0.055 
+                        }); 
+                    }
+
+                    const linearColor = srgbToRgb(color);
+                    const linearResult = Matrix.crossMultiplyMatrixVector(linearColor, deuteranopia);
+                    const srgbResult = rgbToSrgb(linearResult);
+                    return srgbResult;
+                </wc-js-shader-canvas>
             </td>
             <td>
-                <wc-cpu-shader-canvas image="./img/color-test.svg" height="200" width="200">
+                <wc-js-shader-canvas image="./img/color-test.svg" height="200" width="100" id="js-tritanopia">
                     const tritanopia = [
                         [0.4926, 0.5049, -0.0002, 0],
                         [0.4940, 0.5084, 0.0001, 0],
                         [-3.0081, 3.0131, 0.9999, 0],
                         [0, 0, 0, 1]
                     ];
-                    const result = Matrix.crossMultiplyMatrixVector(color, tritanopia);
-                    return result;
-                </wc-cpu-shader-canvas>
+
+                    function srgbToRgb(color) {
+                        return color.map(component => {
+                            const sign = component < 0 ? -1 : 1; 
+                            const abs=Math.abs(component); 
+                            return abs <= 0.04045 
+                                ? component / 12.92 
+                                : sign * Math.pow((abs + 0.055) / 1.055, 2.4); 
+                        }); 
+                    }
+                        
+                    function rgbToSrgb(color) { 
+                        return color.map(component => {
+                            return component < 0.0031308 
+                                ? component * 12.92 
+                                : 1.055 * Math.pow(component, 1/2.4) - 0.055 
+                        }); 
+                    }
+
+                    const linearColor = srgbToRgb(color);
+                    const linearResult = Matrix.crossMultiplyMatrixVector(linearColor, tritanopia);
+                    const srgbResult = rgbToSrgb(linearResult);
+                    return srgbResult;
+                </wc-js-shader-canvas>
             </td>
             <td>
-                <wc-cpu-shader-canvas image="./img/color-test.svg" height="200" width="200">
+                <wc-js-shader-canvas image="./img/color-test.svg" height="200" width="100" id="js-tritanopia-2">
                     const tritanopiaFixed = [
                         [1.01595, 0.1351, -0.1488, 0],
                         [-0.01542, 0.8683, 0.1448, 0],
                         [0.1002, 0.8168, 0.1169, 0],
                         [0, 0, 0, 1]
                     ];
-                    const result = Matrix.crossMultiplyMatrixVector(color, tritanopiaFixed);
-                    return result;
-                </wc-cpu-shader-canvas>
+
+                    function srgbToRgb(color) {
+                        return color.map(component => {
+                            const sign = component < 0 ? -1 : 1; 
+                            const abs=Math.abs(component); 
+                            return abs <= 0.04045 
+                                ? component / 12.92 
+                                : sign * Math.pow((abs + 0.055) / 1.055, 2.4); 
+                        }); 
+                    }
+                        
+                    function rgbToSrgb(color) { 
+                        return color.map(component=> {
+                            return component < 0.0031308 
+                                ? component * 12.92 
+                                : 1.055 * Math.pow(component, 1/2.4) - 0.055 
+                        }); 
+                    }
+
+
+                    const linearColor = srgbToRgb(color);
+                    const linearResult = Matrix.crossMultiplyMatrixVector(linearColor, tritanopiaFixed);
+                    const srgbResult = rgbToSrgb(linearResult);
+                    return srgbResult;
+                </wc-js-shader-canvas>
             </td>
             <td>
-                <wc-cpu-shader-canvas image="./img/color-test.svg" height="200" width="200">
+                <wc-js-shader-canvas image="./img/color-test.svg" height="200" width="100" id="js-achromatopsia">
                     const achromatopsia = [
                         [0.21, 0.72, 0.07, 0],
                         [0.21, 0.72, 0.07, 0],
                         [0.21, 0.72, 0.07, 0],
                         [0, 0, 0, 1],
                     ];
-                    const result = Matrix.crossMultiplyMatrixVector(color, achromatopsia);
-                    return result;
-                </wc-cpu-shader-canvas>
+
+
+                    function srgbToRgb(color) {
+                        return color.map(component => {
+                            const sign = component < 0 ? -1 : 1; 
+                            const abs=Math.abs(component); 
+                            return abs <= 0.04045 
+                                ? component / 12.92 
+                                : sign * Math.pow((abs + 0.055) / 1.055, 2.4); 
+                        }); 
+                    }
+                        
+                    function rgbToSrgb(color) { 
+                        return color.map(component=> {
+                            return component < 0.0031308 
+                                ? component * 12.92 
+                                : 1.055 * Math.pow(component, 1/2.4) - 0.055 
+                        }); 
+                    }
+
+
+                    const linearColor = srgbToRgb(color);
+                    const linearResult = Matrix.crossMultiplyMatrixVector(color, achromatopsia);
+                    const srgbResult = rgbToSrgb(linearResult);
+                    return srgbResult;
+                </wc-js-shader-canvas>
             </td>
         </tr>
-    </table>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Original</th>
-                <th>Protanopia (SVG, Chrome Devtools)</th>
-                <th>Deuteranopia (SVG, Chrome Devtools)</th>
-                <th>Tritanopia (SVG, Chrome Devtools)</th>
-            </tr>
-        </thead>
         <tr>
+            <td>WGSL</td>
             <td>
                 <img src="./img/color-test.svg">
             </td>
             <td>
-                <img src="./img/color-test.svg" style="filter: url(#protanopia-g);">
+                <wc-wgsl-shader-canvas image="./img/color-test.svg" height="200" width="100">
+                    <script type="wgsl">
+						[[group(0), binding(0)]] var my_sampler: sampler;
+						[[group(0), binding(1)]] var my_texture: texture_2d<f32>;
+						struct VertexOut {
+							[[builtin(position)]] position : vec4<f32>;
+							[[location(0)]] uv : vec2<f32>;
+						};
+
+						[[stage(vertex)]]
+						fn vertex_main([[location(0)]] position: vec2<f32>, [[location(1)]] uv: vec2<f32>) -> VertexOut
+						{
+							var output : VertexOut;
+							output.position = vec4<f32>(position, 0.0, 1.0);
+							output.uv = uv;
+							return output;
+						}
+
+                        fn srgb_to_rgb(color: vec4<f32>) -> vec4<f32> {
+                            var bcutoff = color < vec4<f32>(0.04045);
+                            var cutoff = vec4<f32>(f32(bcutoff[0]), f32(bcutoff[1]), f32(bcutoff[2]), f32(bcutoff[3]));
+                            var higher = pow((color + vec4<f32>(0.055)) / vec4<f32>(1.055), vec4<f32>(2.4));
+                            var lower = color / vec4<f32>(12.92);
+                            return mix(higher, lower, cutoff);
+                        }
+
+                        fn rgb_to_srgb(color: vec4<f32>) -> vec4<f32> {
+                            var bcutoff = color < vec4<f32>(0.0031308);
+                            var cutoff = vec4<f32>(f32(bcutoff[0]), f32(bcutoff[1]), f32(bcutoff[2]), f32(bcutoff[3]));
+                            var higher = vec4<f32>(1.055) * pow(color, vec4<f32>(1.0 / 2.4)) - 0.055;
+                            var lower = color * vec4<f32>(12.92);
+                            return mix(higher, lower, cutoff);
+                        }
+
+
+						[[stage(fragment)]]
+						fn fragment_main(fragData: VertexOut) -> [[location(0)]] vec4<f32>
+						{
+                            var protanopia = mat4x4<f32>(
+                                vec4<f32>(0.1120, 0.8853, -0.0005, 0.0),
+                                vec4<f32>(0.1126, 0.8897, -0.0001, 0.0),
+                                vec4<f32>(0.0045, 0.0001, 1.00191, 0.0),  
+                                vec4<f32>(0.0, 0.0, 0.0, 1.0)
+							);
+
+                            var source = textureSample(my_texture, my_sampler, fragData.uv);
+
+                            var linearColor = srgb_to_rgb(source);
+                            var linearTarget = linearColor * protanopia;
+                            var srgbTarget = rgb_to_srgb(linearTarget);
+							return srgbTarget;
+						}
+                    </script>
+                </wc-wgsl-shader-canvas>
             </td>
             <td>
-                <img src="./img/color-test.svg" style="filter: url(#deuteranopia-g);">
+                <wc-wgsl-shader-canvas image="./img/color-test.svg" height="200" width="100">
+                    <script type="wgsl">
+            			[[group(0), binding(0)]] var my_sampler: sampler;
+            			[[group(0), binding(1)]] var my_texture: texture_2d<f32>;
+            			struct VertexOut {
+            				[[builtin(position)]] position : vec4<f32>;
+            				[[location(0)]] uv : vec2<f32>;
+            			};
+            
+            			[[stage(vertex)]]
+            			fn vertex_main([[location(0)]] position: vec2<f32>, [[location(1)]] uv: vec2<f32>) -> VertexOut
+            			{
+            				var output : VertexOut;
+            				output.position = vec4<f32>(position, 0.0, 1.0);
+            				output.uv = uv;
+            				return output;
+            			}
+
+                        fn srgb_to_rgb(color: vec4<f32>) -> vec4<f32> {
+                            var bcutoff = color < vec4<f32>(0.04045);
+                            var cutoff = vec4<f32>(f32(bcutoff[0]), f32(bcutoff[1]), f32(bcutoff[2]), f32(bcutoff[3]));
+                            var higher = pow((color + vec4<f32>(0.055)) / vec4<f32>(1.055), vec4<f32>(2.4));
+                            var lower = color / vec4<f32>(12.92);
+                            return mix(higher, lower, cutoff);
+                        }
+
+                        fn rgb_to_srgb(color: vec4<f32>) -> vec4<f32> {
+                            var bcutoff = color < vec4<f32>(0.0031308);
+                            var cutoff = vec4<f32>(f32(bcutoff[0]), f32(bcutoff[1]), f32(bcutoff[2]), f32(bcutoff[3]));
+                            var higher = vec4<f32>(1.055) * pow(color, vec4<f32>(1.0 / 2.4)) - 0.055;
+                            var lower = color * vec4<f32>(12.92);
+                            return mix(higher, lower, cutoff);
+                        }
+            
+            			[[stage(fragment)]]
+            			fn fragment_main(fragData: VertexOut) -> [[location(0)]] vec4<f32>
+            			{
+
+            				var deuteranopia = mat4x4<f32>(
+            					vec4<f32>(0.2920, 0.7054, -0.0003, 0.0),
+            					vec4<f32>(0.2934, 0.7089, 0.0000, 0.0),
+            					vec4<f32>(-0.02098, 0.02559, 1.0019, 0.0),
+            					vec4<f32>(0.0, 0.0, 0.0, 1.0)
+            				);			
+
+                            var source = textureSample(my_texture, my_sampler, fragData.uv);
+
+                            var linearColor = srgb_to_rgb(source);
+                            var linearTarget = linearColor * deuteranopia;
+                            var srgbTarget = rgb_to_srgb(linearTarget);
+							return srgbTarget;
+            			}
+                    </script>
+                </wc-wgsl-shader-canvas>
             </td>
             <td>
-                <img src="./img/color-test.svg" style="filter: url(#tritanopia-g);">
+                <wc-wgsl-shader-canvas image="./img/color-test.svg" height="200" width="100">
+                    <script type="wgsl">
+                    	[[group(0), binding(0)]] var my_sampler: sampler;
+                    	[[group(0), binding(1)]] var my_texture: texture_2d<f32>;
+                    	struct VertexOut {
+                    		[[builtin(position)]] position : vec4<f32>;
+                    		[[location(0)]] uv : vec2<f32>;
+                    	};
+                    
+                    	[[stage(vertex)]]
+                    	fn vertex_main([[location(0)]] position: vec2<f32>, [[location(1)]] uv: vec2<f32>) -> VertexOut
+                    	{
+                    		var output : VertexOut;
+                    		output.position = vec4<f32>(position, 0.0, 1.0);
+                    		output.uv = uv;
+                    		return output;
+                    	}
+
+                        fn srgb_to_rgb(color: vec4<f32>) -> vec4<f32> {
+                            var bcutoff = color < vec4<f32>(0.04045);
+                            var cutoff = vec4<f32>(f32(bcutoff[0]), f32(bcutoff[1]), f32(bcutoff[2]), f32(bcutoff[3]));
+                            var higher = pow((color + vec4<f32>(0.055)) / vec4<f32>(1.055), vec4<f32>(2.4));
+                            var lower = color / vec4<f32>(12.92);
+                            return mix(higher, lower, cutoff);
+                        }
+
+                        fn rgb_to_srgb(color: vec4<f32>) -> vec4<f32> {
+                            var bcutoff = color < vec4<f32>(0.0031308);
+                            var cutoff = vec4<f32>(f32(bcutoff[0]), f32(bcutoff[1]), f32(bcutoff[2]), f32(bcutoff[3]));
+                            var higher = vec4<f32>(1.055) * pow(color, vec4<f32>(1.0 / 2.4)) - 0.055;
+                            var lower = color * vec4<f32>(12.92);
+                            return mix(higher, lower, cutoff);
+                        }
+                    
+                    	[[stage(fragment)]]
+                    	fn fragment_main(fragData: VertexOut) -> [[location(0)]] vec4<f32>
+                    	{
+            
+                    		var tritanopia = mat4x4<f32>(
+                                vec4<f32>(0.4926, 0.5049, -0.0002, 0.0),
+                                vec4<f32>(0.4940, 0.5084, 0.0001, 0.0),
+                                vec4<f32>(-3.0081, 3.0131, 0.9999, 0.0),
+                                vec4<f32>(0.0, 0.0, 0.0, 1.0)
+                    		);			
+            
+                            var source = textureSample(my_texture, my_sampler, fragData.uv);
+
+                            var linearColor = srgb_to_rgb(source);
+                            var linearTarget = linearColor * tritanopia;
+                            var srgbTarget = rgb_to_srgb(linearTarget);
+							return srgbTarget;
+                    	}
+                    </script>
+                </wc-wgsl-shader-canvas>
+            </td>
+            <td>
+                <wc-wgsl-shader-canvas image="./img/color-test.svg" height="200" width="100">
+                    <script type="wgsl">
+                    	[[group(0), binding(0)]] var my_sampler: sampler;
+                    	[[group(0), binding(1)]] var my_texture: texture_2d<f32>;
+                    	struct VertexOut {
+                    		[[builtin(position)]] position : vec4<f32>;
+                    		[[location(0)]] uv : vec2<f32>;
+                    	};
+                    
+                    	[[stage(vertex)]]
+                    	fn vertex_main([[location(0)]] position: vec2<f32>, [[location(1)]] uv: vec2<f32>) -> VertexOut
+                    	{
+                    		var output : VertexOut;
+                    		output.position = vec4<f32>(position, 0.0, 1.0);
+                    		output.uv = uv;
+                    		return output;
+                    	}
+
+                        fn srgb_to_rgb(color: vec4<f32>) -> vec4<f32> {
+                            var bcutoff = color < vec4<f32>(0.04045);
+                            var cutoff = vec4<f32>(f32(bcutoff[0]), f32(bcutoff[1]), f32(bcutoff[2]), f32(bcutoff[3]));
+                            var higher = pow((color + vec4<f32>(0.055)) / vec4<f32>(1.055), vec4<f32>(2.4));
+                            var lower = color / vec4<f32>(12.92);
+                            return mix(higher, lower, cutoff);
+                        }
+
+                        fn rgb_to_srgb(color: vec4<f32>) -> vec4<f32> {
+                            var bcutoff = color < vec4<f32>(0.0031308);
+                            var cutoff = vec4<f32>(f32(bcutoff[0]), f32(bcutoff[1]), f32(bcutoff[2]), f32(bcutoff[3]));
+                            var higher = vec4<f32>(1.055) * pow(color, vec4<f32>(1.0 / 2.4)) - 0.055;
+                            var lower = color * vec4<f32>(12.92);
+                            return mix(higher, lower, cutoff);
+                        }
+                    
+                    	[[stage(fragment)]]
+                    	fn fragment_main(fragData: VertexOut) -> [[location(0)]] vec4<f32>
+                    	{
+                    
+                    		var tritanopiaFixed = mat4x4<f32>(
+                                vec4<f32>(1.01595, 0.1351, -0.1488, 0.0),
+                                vec4<f32>(-0.01542, 0.8683, 0.1448, 0.0),
+                                vec4<f32>(0.1002, 0.8168, 0.1169, 0.0),
+                                vec4<f32>(0.0, 0.0, 0.0, 1.0)
+                    		);			
+                    
+                            var source = textureSample(my_texture, my_sampler, fragData.uv);
+
+                            var linearColor = srgb_to_rgb(source);
+                            var linearTarget = linearColor * tritanopiaFixed;
+                            var srgbTarget = rgb_to_srgb(linearTarget);
+							return srgbTarget;
+                    	}
+                    </script>
+                </wc-wgsl-shader-canvas>
+            </td>
+            <td>
+                <wc-wgsl-shader-canvas image="./img/color-test.svg" height="200" width="100">
+                    <script type="wgsl">
+                    	[[group(0), binding(0)]] var my_sampler: sampler;
+                    	[[group(0), binding(1)]] var my_texture: texture_2d<f32>;
+                    	struct VertexOut {
+                    		[[builtin(position)]] position : vec4<f32>;
+                    		[[location(0)]] uv : vec2<f32>;
+                    	};
+                    
+                    	[[stage(vertex)]]
+                    	fn vertex_main([[location(0)]] position: vec2<f32>, [[location(1)]] uv: vec2<f32>) -> VertexOut
+                    	{
+                    		var output : VertexOut;
+                    		output.position = vec4<f32>(position, 0.0, 1.0);
+                    		output.uv = uv;
+                    		return output;
+                    	}
+
+                        fn srgb_to_rgb(color: vec4<f32>) -> vec4<f32> {
+                            var bcutoff = color < vec4<f32>(0.04045);
+                            var cutoff = vec4<f32>(f32(bcutoff[0]), f32(bcutoff[1]), f32(bcutoff[2]), f32(bcutoff[3]));
+                            var higher = pow((color + vec4<f32>(0.055)) / vec4<f32>(1.055), vec4<f32>(2.4));
+                            var lower = color / vec4<f32>(12.92);
+                            return mix(higher, lower, cutoff);
+                        }
+
+                        fn rgb_to_srgb(color: vec4<f32>) -> vec4<f32> {
+                            var bcutoff = color < vec4<f32>(0.0031308);
+                            var cutoff = vec4<f32>(f32(bcutoff[0]), f32(bcutoff[1]), f32(bcutoff[2]), f32(bcutoff[3]));
+                            var higher = vec4<f32>(1.055) * pow(color, vec4<f32>(1.0 / 2.4)) - 0.055;
+                            var lower = color * vec4<f32>(12.92);
+                            return mix(higher, lower, cutoff);
+                        }
+                    
+                    	[[stage(fragment)]]
+                    	fn fragment_main(fragData: VertexOut) -> [[location(0)]] vec4<f32>
+                    	{
+                    
+                    		var achromatopsia = mat4x4<f32>(
+                                vec4<f32>(0.21, 0.72, 0.07, 0.0),
+                                vec4<f32>(0.21, 0.72, 0.07, 0.0),
+                                vec4<f32>(0.21, 0.72, 0.07, 0.0),
+                                vec4<f32>(0.0, 0.0, 0.0, 1.0),
+                    		);			
+                    
+                            var source = textureSample(my_texture, my_sampler, fragData.uv);
+
+                            var linearColor = srgb_to_rgb(source);
+                            var linearTarget = linearColor * achromatopsia;
+                            var srgbTarget = rgb_to_srgb(linearTarget);
+							return srgbTarget;
+                    	}
+                    </script>
+                </wc-wgsl-shader-canvas>
+            </td>
+        </tr>
+        <tr>
+            <td>Chrome Dev Tools (SVG)</td>
+            <td>
+                <img src="./img/color-test.svg">
+            </td>
+            <td>
+                <img src="./img/color-test.svg" style="filter: url(#protanopia-google);">
+            </td>
+            <td>
+                <img src="./img/color-test.svg" style="filter: url(#deuteranopia-google);">
+            </td>
+            <td>
+                <img src="./img/color-test.svg" style="filter: url(#tritanopia-google);">
+            </td>
+        </tr>
+        <tr>
+            <td>GIMP Filters (PNG)</td>
+            <td>
+                <img src="./img/color-test.svg">
+            </td>
+            <td>
+                <img src="./img/protanopia-gimp.png">
+            </td>
+            <td>
+                <img src="./img/deuteranopia-gimp.png">
+            </td>
+            <td>
+                <img src="./img/tritanopia-gimp.png">
             </td>
         </tr>
     </table>
     <table>
+        <thead>
+            <th>Original</td>
+            <th>Protanopia</td>
+            <th>Deuteranopia</td>
+            <th>Tritanopia (fixed)</td>
+            <th>Achromatopsia</th>
+        </thead>
         <tr>
             <td>
                 <img src="./img/ishihara.jpg">
@@ -350,8 +823,9 @@
             </td>
         </tr>
     </table>
-    <script src="./js/components/wc-gpu-shader-canvas.js" type="module"></script>
-    <script src="./js/components/wc-cpu-shader-canvas.js" type="module"></script>
+    <script src="./js/components/wc-glsl-shader-canvas.js" type="module"></script>
+    <script src="./js/components/wc-js-shader-canvas.js" type="module"></script>
+    <script src="./js/components/wc-wgsl-shader-canvas.js" type="module"></script>
     <script src="./js/scratch-pad.js" type="module"></script>
 </body>
 
