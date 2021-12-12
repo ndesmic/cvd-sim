@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>CVD Test</title>
+	<link rel="stylesheet" href="css/index.css">
+	</link>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+	<link rel="icon" href="img/icon32x32.png" type="image/png" />
+</head>
+
+<body lang="en">
+	<table>
+		<thead>
+			<tr>
+				<th>Method</th>
+				<th>Original</th>
+				<th>Tritanopia</th>
+			</tr>
+		</thead>
+		<tr>
+			<td>JS</td>
+			<td>
+				<img src="./img/color-test.svg">
+			</td>
+			<td>
+				<wc-js-shader-canvas image="./img/color-test.svg" height="200" width="100" id="js-tritanopia" src="../../test.js">
+			</td>
+		</tr>
+		<tr>
+			<td>GIMP Filters (PNG)</td>
+			<td>
+				<img src="./img/color-test.svg">
+			</td>
+			<td>
+				<img src="./img/tritanopia-gimp.png">
+			</td>
+		</tr>
+	</table>
+	<script src="./js/components/wc-js-shader-canvas.js" type="module"></script>
+</body>
+
+</html>

@@ -38,7 +38,7 @@ export class WcGlslShaderCanvas extends HTMLElement {
 					:host { display: block; }
 					#message { display: none; }
 				</style>
-				<canvas width="${this.#width}px" height="${this.#height}px"></canvas>
+				<canvas width="${this.#width}" height="${this.#height}"></canvas>
 				<div id="message"></div>
 			`;
 	}
@@ -182,7 +182,7 @@ export class WcGlslShaderCanvas extends HTMLElement {
 			this.setMessage(`⚠ Failed to compile vertex shader: ${this.context.getShaderInfoLog(this.vertexShader)}`);
 		}
 
-		const fragmentShaderText = this.textContent;
+		const fragmentShaderText = (this.querySelector("script") ?? this).textContent;
 		this.fragmentShader = this.context.createShader(this.context.FRAGMENT_SHADER);
 		this.context.shaderSource(this.fragmentShader, fragmentShaderText);
 		this.context.compileShader(this.fragmentShader);

@@ -32,7 +32,7 @@ export class WcWgslShaderCanvas extends HTMLElement {
 				 display: block;
 			 }
 			</style>
-            <canvas width="${this.#width}px" height="${this.#height}px"></canvas>
+            <canvas width="${this.#width}" height="${this.#height}"></canvas>
 			<div id="message"></div>
         `;
 	}

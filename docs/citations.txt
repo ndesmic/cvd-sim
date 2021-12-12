@@ -1,0 +1,7 @@
+https://en.wikipedia.org/wiki/LMS_color_space
+http://citeseerx.ist.psu.edu/viewdoc/download;jsessionid=D2D6B003CDB47D78A74307540FD72AEC?doi=10.1.1.378.3487&rep=rep1&type=pdf
+http://www.cvrl.org/
+http://vision.psychol.cam.ac.uk/jdmollon/papers/Dichromat_simulation.pdf
+https://daltonlens.org/understanding-cvd-simulation/
+
+https://ixora.io/projects/colorblindness/color-blindness-simulation-research/

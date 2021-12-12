@@ -1,4 +1,4 @@
-import { lerp } from "./lib/matrix.js";
+import { lerp } from "../lib/matrix.js";
 
 const protanomalyRgbJs = document.querySelector("#protanomaly-rgb-js");
 const protanomalyLmsJs = document.querySelector("#protanomaly-lms-js");

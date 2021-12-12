@@ -8,9 +8,8 @@ export class WcJsShaderCanvas extends HTMLElement {
 	#context;
 	#mod;
 	#globals;
-	#colorSpace;
 
-	static observedAttributes = ["image", "height", "width", "src", "globals", "color-space"];
+	static observedAttributes = ["image", "height", "width", "src", "globals"];
 	constructor() {
 		super();
 		this.bind(this);
@@ -33,7 +32,7 @@ export class WcJsShaderCanvas extends HTMLElement {
 	connectedCallback() {
 		this.createShadowDom();
 		this.cacheDom();
-		this.#context = this.dom.canvas.getContext("2d", { colorSpace: this.#colorSpace ?? "srgb" });
+		this.#context = this.dom.canvas.getContext("2d");
 		this.update();
 	}
 	cacheDom() {
@@ -109,9 +108,6 @@ export class WcJsShaderCanvas extends HTMLElement {
 		val = typeof (val) === "object" ? val : JSON.parse(val);
 		this.#globals = val;
 		this.update();
-	}
-	set ["color-space"](val){
-		this.#colorSpace = val;
 	}
 }
 
